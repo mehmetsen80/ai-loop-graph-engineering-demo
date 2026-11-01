@@ -69,8 +69,9 @@ public final class SupportMain {
       }
     };
 
-    SupportReplyLoop loop =
-        SupportApp.build(llm, orders, policies, crm, console, audit);
+    SupportGraph graph =
+        SupportApp.graph(llm, orders, policies, crm, console, audit);
+    SupportReplyLoop loop = graph.loop();
 
     Ticket ticket = new Ticket(
         "48291",
@@ -78,7 +79,9 @@ public final class SupportMain {
         "cust-77");
     Context ctx = new Context("agent-desk-1", "email");
 
-    log.info("=== Support reply loop ===");
+    log.info("=== Support reply Graph ===");
+    graph.edges().forEach(e -> log.info("[graph] {}", e));
+    log.info("=== Support reply Loop ===");
     log.info("ticket={} body={}", ticket.id(), ticket.body());
     try {
       Reply reply = loop.run(ticket, ctx);

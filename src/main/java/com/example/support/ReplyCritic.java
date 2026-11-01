@@ -3,6 +3,17 @@ package com.example.support;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Observe step: policy / finance / tone gates → {@link CritiqueResult}.
+ *
+ * <p>This teaching build is <strong>deterministic</strong> (rules + {@link ToneCheck}) so the Loop
+ * latch stays cheap and unit-testable.
+ *
+ * <p>TODO(llm-critic): optional LLM critic path — inject {@link LlmClient}, keep the same
+ * {@code CritiqueResult.approved()} / {@code retry(notes)} contract, and declare a
+ * {@code CRITIC → LLM} {@link GraphEdge} in {@link SupportGraph#wire}. Hard gates (policy cite,
+ * finance threshold) should still run in code so an LLM cannot approve a forbidden Send.
+ */
 public final class ReplyCritic {
 
   private static final int FINANCE_THRESHOLD_CENTS = 10_000;

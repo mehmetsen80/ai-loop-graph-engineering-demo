@@ -1,7 +1,14 @@
 package com.example.support;
 
+/**
+ * Composition root. Builds the {@link SupportGraph} (Graph Engineering), then a
+ * {@link SupportReplyLoop} that runs over it (Loop Engineering).
+ */
 public final class SupportApp {
 
+  private SupportApp() {}
+
+  /** Wire the Graph, then return a Loop that runs on those nodes/edges. */
   public static SupportReplyLoop build(
       LlmClient llm,
       OrderLookup orders,
@@ -9,16 +16,17 @@ public final class SupportApp {
       CrmSend crm,
       DeskConsole console,
       AuditLog audit) {
+    return graph(llm, orders, policies, crm, console, audit).loop();
+  }
 
-    TriageAgent triage = new TriageAgent(llm);
-    ResearcherAgent researcher =
-        new ResearcherAgent(orders, policies, audit);
-    DrafterAgent drafter = new DrafterAgent(llm);
-    ReplyCritic critic = new ReplyCritic(new ToneCheck());
-    HumanGate humanGate = new HumanGate(crm, audit, console);
-
-    // Drafter never receives crm. HumanGate is the only CrmSend owner.
-    return new SupportReplyLoop(
-        triage, researcher, drafter, critic, humanGate, audit);
+  /** Graph only — inspect {@link SupportGraph#edges()} without running the Loop. */
+  public static SupportGraph graph(
+      LlmClient llm,
+      OrderLookup orders,
+      PolicySearch policies,
+      CrmSend crm,
+      DeskConsole console,
+      AuditLog audit) {
+    return SupportGraph.wire(llm, orders, policies, crm, console, audit);
   }
 }
